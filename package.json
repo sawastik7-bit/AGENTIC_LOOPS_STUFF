@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/sawastik7-bit/AGENTIC_LOOPS_STUFF/issues"
   },
-  "homepage": "https://github.com/sawastik7-bit/AGENTIC_LOOPS_STUFF#readme"
+  "homepage": "https://github.com/sawastik7-bit/AGENTIC_LOOPS_STUFF#readme",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
 }
