@@ -1,13 +1,8 @@
-import readline from 'readline-sync';
-import ollama from 'ollama';
-import { json } from 'express';
+import readline from "readline-sync";
+import ollama from "ollama";
 
+let question = readline.question("Ask something about the exchange rate: ");
 
-// first step is to how to take input from a user
-
-let question=readline.question("Ask something about the exchange rate: ");
-
-// these are the tools available
 const ToolsAvailable = [
   {
     type: "function",
@@ -25,40 +20,50 @@ const ToolsAvailable = [
     },
   },
 ];
-// This is the prompt 
-const PROMPT=`
-Your are an Ai assistant which have power to understand , plan , decide, execute and produce output
-you understand the input given from user and what tool to call if needed in that instruction
-You will be given access to the tools which you can choose also a message array for memory persistence 
-You will decide what necessary actions to perform to produce correct output
-eg. Tools available let ToolsAvailable=['get_Current_Currency_Price']
 
-`
+const PROMPT = `
+You must ONLY use tool outputs for numbers.
+Ignore your own knowledge completely if tool output is provided.
+Repeat the tool output verbatim.
+`;
 
+let messages = [
+  { role: "system", content: PROMPT },
+  { role: "user", content: question },
+];
 
+const main = async () => {
+  let response = await ollama.chat({
+    model: "llama3.2",
+    url: "http://localhost:11434",
+    options: { temperature: 0 },
+    tools: ToolsAvailable,
+    messages: messages,
+  });
 
+  messages.push(response.message);
+  const { from, to } = response.message.tool_calls[0].function.arguments;
 
-// create a messages array to store all of  the messsages inn form or objects
-let messages=[
-    {role:"system",content:PROMPT},
-    {role:"user",content:question},
+  const apiResponse = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+  const data = await apiResponse.json();
+  const rate = data.rates[to];
 
-]
+  console.log(`1 ${from} = ${rate} ${to}`);
 
+  messages.push({
+    role: "function",
+    name: "get_Current_Currency_Price",
+    content: `1 ${from} = ${rate} ${to}`,
+  });
 
+  const finalResponse = await ollama.chat({
+    model: "llama3.2",
+    url: "http://localhost:11434",
+    options: { temperature: 0 },
+    messages: messages,
+  });
 
-let response=await ollama.chat({
-     model:"llama3.2",
-    url:"http://localhost:11434",
-    options:{
-        temperature:1.0
-    },
-    tools:ToolsAvailable,
-    messages:messages
-})
+  console.log(finalResponse.message.content);
+};
 
-console.log(JSON.stringify(response.message));
-// now push back the message to the array of messages
-
-
-
+main();
