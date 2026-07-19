@@ -1,0 +1,21 @@
+{
+  "name": "agentic_loops_stuff",
+  "version": "1.0.0",
+  "description": "I am making this repo to understand agentic loops and how to build them.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sawastik7-bit/AGENTIC_LOOPS_STUFF.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/sawastik7-bit/AGENTIC_LOOPS_STUFF/issues"
+  },
+  "homepage": "https://github.com/sawastik7-bit/AGENTIC_LOOPS_STUFF#readme"
+}
