@@ -1,6 +1,7 @@
 import readline from "readline-sync";
-import ollama from "ollama";
-
+import OpenAI from "openai";
+import dotenv from 'dotenv';
+dotenv.config();
 let question = readline.question("Ask something about the exchange rate: ");
 
 const ToolsAvailable = [
@@ -31,18 +32,23 @@ let messages = [
   { role: "system", content: PROMPT },
   { role: "user", content: question },
 ];
-
+const client = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1", 
+  apiKey:process.env.OPEN_ROUTER_API_KEY,
+});
 const main = async () => {
-  let response = await ollama.chat({
-    model: "llama3.2",
-    url: "http://localhost:11434",
+  let response = await client.chat.completions.create({
+    model: "poolside/laguna-xs-2.1:free",
+   
     options: { temperature: 0 },
     tools: ToolsAvailable,
     messages: messages,
   });
 
+  console.log(response)
+
   messages.push(response.message);
-  const { from, to } = response.message.tool_calls[0].function.arguments;
+  // const { from, to } = response.message.tool_calls[0].function.arguments;
 
   const apiResponse = await fetch(`https://open.er-api.com/v6/latest/${from}`);
   const data = await apiResponse.json();
@@ -56,8 +62,8 @@ const main = async () => {
     content: `1 ${from} = ${rate} ${to}`,
   });
 
-  const finalResponse = await ollama.chat({
-    model: "llama3.2",
+  const finalResponse = await client.chat.completions.create({
+    model: "poolside/laguna-xs-2.1:free",
     url: "http://localhost:11434",
     options: { temperature: 0 },
     messages: messages,
