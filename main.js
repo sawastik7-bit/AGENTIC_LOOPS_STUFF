@@ -23,9 +23,13 @@ const ToolsAvailable = [
 ];
 
 const PROMPT = `
-You must ONLY use tool outputs for numbers.
-Ignore your own knowledge completely if tool output is provided.
-Repeat the tool output verbatim.
+You are not allowed to answer exchange rates from memory.
+
+If a tool response exists, you MUST answer using ONLY the exact tool content.
+
+Never estimate.
+Never substitute numbers.
+Never use prior knowledge.
 `;
 
 let messages = [
@@ -49,7 +53,7 @@ let stringified=JSON.stringify(response.choices[0].message.tool_calls[0].functio
 parsedFunc=JSON.parse(parsedFunc);
   console.log(parsedFunc);
 
-  messages.push(response.message);
+  messages.push(response.choices[0].message);
  const {from,to}=parsedFunc;
 
   console.log(from,to);
@@ -60,8 +64,9 @@ parsedFunc=JSON.parse(parsedFunc);
   console.log(`1 ${from} = ${rate} ${to}`);
 
   messages.push({
-    role: "function",
+    role: "tool",
     name: "get_Current_Currency_Price",
+    tool_call_id:response.choices[0].message.tool_calls[0].id,
     content: `1 ${from} = ${rate} ${to}`,
   });
 
@@ -72,7 +77,7 @@ parsedFunc=JSON.parse(parsedFunc);
     messages: messages,
   });
 
-  console.log(finalResponse.message.content);
+  console.log(finalResponse.choices[0].message.content);
 };
 
 main();
