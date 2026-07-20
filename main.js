@@ -44,12 +44,15 @@ const main = async () => {
     tools: ToolsAvailable,
     messages: messages,
   });
-
-  console.log(response)
+let stringified=JSON.stringify(response.choices[0].message.tool_calls[0].function.arguments,null,2);
+  let parsedFunc=JSON.parse(stringified);
+parsedFunc=JSON.parse(parsedFunc);
+  console.log(parsedFunc);
 
   messages.push(response.message);
-  // const { from, to } = response.message.tool_calls[0].function.arguments;
+ const {from,to}=parsedFunc;
 
+  console.log(from,to);
   const apiResponse = await fetch(`https://open.er-api.com/v6/latest/${from}`);
   const data = await apiResponse.json();
   const rate = data.rates[to];
@@ -64,7 +67,7 @@ const main = async () => {
 
   const finalResponse = await client.chat.completions.create({
     model: "poolside/laguna-xs-2.1:free",
-    url: "http://localhost:11434",
+    
     options: { temperature: 0 },
     messages: messages,
   });
