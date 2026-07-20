@@ -48,10 +48,9 @@ const main = async () => {
     tools: ToolsAvailable,
     messages: messages,
   });
-let stringified=JSON.stringify(response.choices[0].message.tool_calls[0].function.arguments,null,2);
-  let parsedFunc=JSON.parse(stringified);
-parsedFunc=JSON.parse(parsedFunc);
-  console.log(parsedFunc);
+const parsedFunc = JSON.parse(
+  response.choices[0].message.tool_calls[0].function.arguments
+);
 
   messages.push(response.choices[0].message);
  const {from,to}=parsedFunc;
@@ -63,12 +62,15 @@ parsedFunc=JSON.parse(parsedFunc);
 
   console.log(`1 ${from} = ${rate} ${to}`);
 
-  messages.push({
-    role: "tool",
-    name: "get_Current_Currency_Price",
-    tool_call_id:response.choices[0].message.tool_calls[0].id,
-    content: `1 ${from} = ${rate} ${to}`,
-  });
+ messages.push({
+  role: "tool",
+  tool_call_id: response.choices[0].message.tool_calls[0].id,
+  content: JSON.stringify({
+    from,
+    to,
+    rate
+  })
+});
 
   const finalResponse = await client.chat.completions.create({
     model: "poolside/laguna-xs-2.1:free",
